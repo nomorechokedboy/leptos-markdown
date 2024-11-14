@@ -102,12 +102,27 @@ pub fn render_node(node: &mdast::Node) -> View {
             url,
             title,
             ..
-        }) => view! {
-            <a href=url title=title.clone().unwrap_or_default()>
-                {children.iter().map(render_node).collect::<Vec<_>>()}
-            </a>
+        }) => {
+            let url_owned = url.clone();
+            let title_owned = title.clone();
+            let link_view = move || {
+                if title_owned.is_some() {
+                    view! {
+                        <a href=url_owned.clone() title=title_owned.clone()>
+                            {children.iter().map(render_node).collect::<Vec<_>>()}
+                        </a>
+                    }
+                } else {
+                    view! {
+                        <a href=url_owned.clone() title=title_owned.clone()>
+                            {children.iter().map(render_node).collect::<Vec<_>>()}
+                        </a>
+                    }
+                }
+            };
+
+            link_view().into_view()
         }
-        .into_view(),
         // mdast::Node::LinkReference(_) => todo!(),
         mdast::Node::Strong(Strong { children, .. }) => {
             view! { <strong>{children.iter().map(render_node).collect::<Vec<_>>()}</strong> }
