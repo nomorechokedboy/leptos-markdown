@@ -13,6 +13,6 @@ console_log = "1.0.0"
 leptos = { version = "0.6.15", features = ["csr", "nightly"] }
 log = "0.4.22"
 markdown = "1.0.0-alpha.21"
-once_cell = "1.20.2"
-regex = "1.11.0"
-syntect = { version = "5.2.0", default-features = false, features = ["default-fancy"]}
+
+[dev-dependencies]
+regex = "1.11.1"
