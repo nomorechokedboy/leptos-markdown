@@ -9,7 +9,9 @@ mod tests {
     const NINJA_IMG: &str = "![an image](/ninJA.png).";
     const EXPECTED_NINJA_IMG: &str =
         concat!("<p><img src=\"/ninJA.png\" alt=\"an image\"", "/>.</p>");
-    const EMPTY_IMAGE: &str = concat!("<p><img src alt", "/></p>");
+    const EMPTY_IMAGE: &str = concat!(
+        "<p><img src alt", "/></p>"
+    );
     #[test]
     fn test_image_handling() {
         let test_cases = vec![
@@ -27,8 +29,7 @@ mod tests {
             },
             TestCase {
                 desc: "should handle images with title attribute",
-                expected: "<p>This is <img src=\" /ninJA.png\" alt=\"an
-        image\" title=\"foo bar\">.</p>",
+                expected: r###"<p>This is <img src="/ninJA.png" alt="an image" title="foo bar"/>.</p>"###,
                 source: "This is ![an image](/ninJA.png \"foo bar\").",
                 ..Default::default()
             },

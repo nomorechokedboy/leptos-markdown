@@ -63,9 +63,8 @@ mod tests {
             },
             TestCase {
                 desc: "should handle code blocks with language",
-                expected: "<pre><code class=\" language-js\">var foo =
-        require('bar');\nfoo();\n</code></pre>",
-                source: "```js\nvar foo = require('bar');\nfoo();\n```",
+                expected: "<pre><code class=\"language-js\">var foo = require(&#x27;bar&#x27;);\nfoo();</code></pre>",
+                source: "```js\nvar foo = require(\'bar\');\nfoo();\n```",
                 ..Default::default()
             },
         ];

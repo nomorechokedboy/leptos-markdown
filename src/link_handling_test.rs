@@ -10,8 +10,7 @@ mod tests {
         let test_cases=vec![
 TestCase {
 desc: "should handle links without title attribute" ,
-expected: "<p>This is <a href=\" https://rust-lang.org/\">
-        a link</a> to Rust Lang</p>",
+expected: "<p>This is <a href=\"https://rust-lang.org/\">a link</a> to Rust Lang</p>",
 source: "This is [a link](https://rust-lang.org/) to Rust Lang",
 },
 TestCase {
