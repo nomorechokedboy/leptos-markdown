@@ -4,7 +4,6 @@ mod link_handling_test;
 mod mdast_to_leptos;
 mod mdast_to_leptos_test;
 
-use helper::clean_leptos_markup;
 use leptos::*;
 use mdast_to_leptos::render_node;
 
@@ -15,15 +14,6 @@ fn main() {
         "# Hello, Markdown!\n\nThis is a **bold** text. <h1 style=\"text-align: center\">Lmao</h1>"
             .to_string(),
     );
-    /* println!(
-    "{:?}",
-    markdown::to_mdast(
-    "#
-    <HelloMessage />, {username}!\n\n<h1 style=\"text-align: center\">Lmao</h1>",
-    &markdown::ParseOptions::mdx()
-    )
-    .expect("Lmao err")
-    ); */
     let node = markdown::to_mdast(
         // "# Hello, Markdown!\n\nThis is a **bold** text. <h1>Lmao</h1>",
         r#"Vue is awesome
@@ -36,16 +26,10 @@ Combining = epic"#,
 
     mount_to_body(move || {
         view! {
-            <Markdown children=s />
-            <textarea
-                on:change=move |ev| {
-                    set_s(event_target_value(&ev));
-                }
-                rows="4"
-                cols="50"
-            >
-                {s}
-            </textarea>
+        <Markdown children=s />
+        <textarea on:change=move |ev| { set_s(event_target_value(&ev)); } rows="4" cols="50">
+            {s}
+        </textarea>
         }
     })
 }
