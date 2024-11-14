@@ -3,22 +3,19 @@ use markdown::mdast::{
     self, AttributeValue, Code, Emphasis, Heading, Image, Link, MdxJsxTextElement, Paragraph,
     Strong, Table, TableCell, TableRow,
 };
-use once_cell::sync::Lazy;
-use syntect::highlighting::ThemeSet;
-use syntect::html::{css_for_theme_with_class_style, ClassStyle, ClassedHTMLGenerator};
-use syntect::parsing::SyntaxSet;
 
-static SYNTAX_SET: Lazy<SyntaxSet> = Lazy::new(|| SyntaxSet::load_defaults_newlines());
-static THEME_SET: Lazy<ThemeSet> = Lazy::new(ThemeSet::load_defaults);
-static SYNTAX_CSS: Lazy<String> = Lazy::new(|| {
-    let theme = &THEME_SET.themes["InspiredGitHub"];
-    css_for_theme_with_class_style(theme, ClassStyle::Spaced).unwrap()
-});
-
-// Component to inject syntax highlighting CSS
-#[component]
-pub fn SyntaxHighlightingStyle() -> impl IntoView {
-    view! { <style>{SYNTAX_CSS.clone()}</style> }
+// Helper function to extract class names from attributes
+fn get_class_from_attributes(attributes: &[mdast::MdxJsxAttribute]) -> Option<String> {
+    attributes.iter().find_map(|attr| match attr.name.as_str() {
+        "class" | "className" => match &attr.value {
+            Some(value) => match value {
+                AttributeValue::Expression(exp) => Some(exp.value.clone()),
+                AttributeValue::Literal(lit) => Some(lit.to_owned()),
+            },
+            None => None,
+        },
+        _ => None,
+    })
 }
 
 pub fn render_node(node: &mdast::Node) -> View {
@@ -67,9 +64,8 @@ pub fn render_node(node: &mdast::Node) -> View {
                             title=title_owned.clone().unwrap_or_default()
                         />
                     }
-                    .into_view()
                 } else {
-                    view! { <img src=url_owned.clone() alt=alt_owned.clone() /> }.into_view()
+                    view! { <img src=url_owned.clone() alt=alt_owned.clone() /> }
                 }
             };
 
@@ -129,52 +125,18 @@ pub fn render_node(node: &mdast::Node) -> View {
                 .into_view()
         }
         mdast::Node::Text(text) => text.value.clone().into_view(),
-        mdast::Node::Code(Code {
-            value, lang, meta, ..
-        }) => {
-            // Get syntax reference based on language
-            let syntax_ref = lang
-                .as_ref()
-                .and_then(|lang| SYNTAX_SET.find_syntax_by_extension(lang))
-                .or_else(|| Some(SYNTAX_SET.find_syntax_plain_text()))
-                .unwrap();
-
-            let mut html_generator = ClassedHTMLGenerator::new_with_class_style(
-                syntax_ref,
-                &SYNTAX_SET,
-                ClassStyle::Spaced,
-            );
-
-            for line in value.lines() {
-                html_generator
-                    .parse_html_for_line_which_includes_newline(&format!("{line}\n"))
-                    .unwrap();
-            }
-
-            let highlighted_html = html_generator.finalize();
+        mdast::Node::Code(Code { value, lang, .. }) => {
+            let language = match lang {
+                Some(l) => format!("language-{l}"),
+                None => String::new(),
+            };
 
             view! {
-                        <div class="relative">
-                            // Language badge if available
-                            {lang
-                                .clone()
-                                .map(|lang| {
-                                    view! {
-                                        <div class="absolute top-2 right-2 px-2 py-1 text-sm rounded bg-gray-700 text-gray-300">
-                                            {lang}
-                                        </div>
-                                    }
-                                })}
-                            <pre class="p-4 rounded-lg bg-gray-900 text-gray-100 overflow-x-auto">
-                                <code
-                                    class="block"
-                                    data-language=lang.clone()
-                                    data-meta=meta.clone()
-                                    inner_html=highlighted_html
-                                />
-                            </pre>
-                        </div>
-                    }.into_view()
+                <pre>
+                    <code class=language>{value}</code>
+                </pre>
+            }
+            .into_view()
         }
         /* mdast::Node::Math(_) => todo!(),
         mdast::Node::MdxFlowExpression(_) => todo!(), */
@@ -286,18 +248,4 @@ fn create_element(
         }
         .into_view(),
     }
-}
-
-// Helper function to extract class names from attributes
-fn get_class_from_attributes(attributes: &[mdast::MdxJsxAttribute]) -> Option<String> {
-    attributes.iter().find_map(|attr| match attr.name.as_str() {
-        "class" | "className" => match &attr.value {
-            Some(value) => match value {
-                AttributeValue::Expression(exp) => Some(exp.value.clone()),
-                AttributeValue::Literal(lit) => Some(lit.to_owned()),
-            },
-            None => None,
-        },
-        _ => None,
-    })
 }

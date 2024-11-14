@@ -6,7 +6,7 @@ mod mdast_to_leptos_test;
 
 use helper::clean_leptos_markup;
 use leptos::*;
-use mdast_to_leptos::{render_node, SyntaxHighlightingStyle};
+use mdast_to_leptos::render_node;
 
 fn main() {
     _ = console_log::init_with_level(log::Level::Debug);
@@ -30,17 +30,22 @@ fn main() {
 And so is markdown
 
 Combining = epic"#,
-        &markdown::ParseOptions::mdx(),
+        &markdown::ParseOptions::default(),
     )
     .expect("Lmao err");
 
     mount_to_body(move || {
         view! {
-        <SyntaxHighlightingStyle />
-        <Markdown children=s />
-        <textarea on:change=move |ev| { set_s(event_target_value(&ev)); } rows="4" cols="50">
-            {s}
-        </textarea>
+            <Markdown children=s />
+            <textarea
+                on:change=move |ev| {
+                    set_s(event_target_value(&ev));
+                }
+                rows="4"
+                cols="50"
+            >
+                {s}
+            </textarea>
         }
     })
 }
