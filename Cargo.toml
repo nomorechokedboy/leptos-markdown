@@ -13,6 +13,8 @@ console_log = "1.0.0"
 leptos = { version = "0.6.15", features = ["csr", "nightly"] }
 log = "0.4.22"
 markdown = "1.0.0-alpha.21"
-
-[dev-dependencies]
 regex = "1.11.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
